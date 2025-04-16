@@ -1,0 +1,33 @@
+name: deploybicep
+# This workflow is designed to deploy infrastructure as code (IAC) using Azure Bicep templates.
+
+# This workflow is triggered on push to the main branch and when changes are made to the deploy directory.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'deploy/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+    AZURE_RESOURCEGROUP_NAME: braunonsiteeasy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - uses: azure/arm-deploy@v1
+      with:
+        deploymentName: ${{ github.run_number }}
+        resourceGroupName: ${{ env.AZURE_RESOURCEGROUP_NAME }}
+        template: ./deploy/main.bicep
+        
+
